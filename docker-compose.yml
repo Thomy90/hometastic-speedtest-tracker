@@ -1,0 +1,40 @@
+services:
+  speedtest-tracker:
+    image: "${IMAGE}"
+    container_name: "speedtest-tracker"
+    restart: "always"
+    networks:
+      - "reverse-proxy"
+    expose:
+      - "80"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - APP_KEY=${APP_KEY}
+      - DB_CONNECTION=sqlite
+      - SPEEDTEST_SCHEDULE=6 */2 * * *
+      - APP_TIMEZONE=${TZ}
+      - DISPLAY_TIMEZONE=${TZ}
+      - PRUNE_RESULTS_OLDER_THAN=7
+      - APP_URL=https://speedtest.home.tastic
+      - ASSET_URL=https://speedtest.home.tastic
+    volumes:
+      - "./config:/config"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.speedtest.rule=Host(`speedtest.home.tastic`)"
+      - "diun.enable=true"
+      - "diun.include_tags=^\\d+\\.\\d+\\.\\d+$"
+      - "homepage.group=Network & Security"
+      - "homepage.name=Speedtest Tracker"
+      - "homepage.icon=speedtest-tracker.png"
+      - "homepage.href=https://speedtest.home.tastic"
+      - "homepage.description=Speedtest Tracker"
+      - "homepage.widget.type=speedtest"
+      - "homepage.widget.url=https://speedtest.home.tastic"
+      - "homepage.widget.version=2"
+      - "homepage.widget.key=${API_KEY}"
+
+networks:
+  reverse-proxy:
+    external: true
